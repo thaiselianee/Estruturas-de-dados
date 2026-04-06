@@ -1,0 +1,125 @@
+using System;
+using System.Collections.Generic;
+
+// Criando Classe 
+class Pokemon
+{
+    public string Nome;
+    public string Tipo;
+    public int Vida;
+    public int Ataque;
+    public int Defesa;
+
+    public Pokemon(string nome, string tipo, int vida, int ataque, int defesa)
+    {
+        Nome = nome;
+        Tipo = tipo;
+        Vida = vida;
+        Ataque = ataque;
+        Defesa = defesa;
+    }
+
+    public virtual void Atacar(Pokemon alvo)
+    {
+        int dano = Ataque - alvo.Defesa;
+        if (dano < 1) dano = 1;
+
+        alvo.Vida -= dano;
+        if (alvo.Vida < 0) alvo.Vida = 0;
+
+        Console.WriteLine($"{Nome} atacou {alvo.Nome} e causou {dano} de dano.");
+        Console.WriteLine($"{alvo.Nome} agora está com {alvo.Vida} de vida.\n");
+    }
+}
+
+//Fogo
+class PokemonFogo : Pokemon
+{
+    public PokemonFogo(string nome, int vida, int ataque, int defesa)
+        : base(nome, "Fogo", vida, ataque, defesa) { }
+
+    public override void Atacar(Pokemon alvo)
+    {
+        int dano = (Ataque - alvo.Defesa) + 2;
+        if (dano < 1) dano = 1;
+
+        alvo.Vida -= dano;
+        if (alvo.Vida < 0) alvo.Vida = 0;
+
+        Console.WriteLine($"{Nome} atacou {alvo.Nome} e causou {dano} de dano.");
+        Console.WriteLine($"{alvo.Nome} agora está com {alvo.Vida} de vida.\n");
+    }
+}
+
+//Água
+class PokemonAgua : Pokemon
+{
+    public PokemonAgua(string nome, int vida, int ataque, int defesa)
+        : base(nome, "Agua", vida, ataque, defesa) { }
+
+    public override void Atacar(Pokemon alvo)
+    {
+        base.Atacar(alvo);
+        Vida += 2;
+    }
+}
+
+// O Treinador
+class Treinador
+{
+    public string Nome;
+    public List<Pokemon> Pokemons = new List<Pokemon>();
+
+    public Treinador(string nome)
+    {
+        Nome = nome;
+    }
+
+    public void AdicionarPokemon(Pokemon p)
+    {
+        Pokemons.Add(p);
+    }
+
+    public Pokemon EscolherPokemon(int i)
+    {
+        return Pokemons[i];
+    }
+}
+
+// ten
+public class Program
+{
+    public static void Main()
+    {
+        Treinador t1 = new Treinador("Ash");
+        Treinador t2 = new Treinador("Misty");
+
+        // 2 Pokémon cada
+        t1.AdicionarPokemon(new PokemonFogo("Charmander", 20, 6, 2));
+        t1.AdicionarPokemon(new Pokemon("Pikachu", "Eletrico", 18, 7, 2));
+
+        t2.AdicionarPokemon(new PokemonAgua("Squirtle", 22, 5, 3));
+        t2.AdicionarPokemon(new Pokemon("Psyduck", "Agua", 19, 5, 2));
+
+        Pokemon p1 = t1.EscolherPokemon(0);
+        Pokemon p2 = t2.EscolherPokemon(0);
+
+        Console.WriteLine($"{t1.Nome} escolheu {p1.Nome}!");
+        Console.WriteLine($"{t2.Nome} escolheu {p2.Nome}!\n");
+
+        // batalha
+        while (p1.Vida > 0 && p2.Vida > 0)
+        {
+            p1.Atacar(p2);
+            if (p2.Vida <= 0) break;
+
+            p2.Atacar(p1);
+        }
+
+        // resultado
+        if (p1.Vida > 0)
+            Console.WriteLine($"{p1.Nome} venceu a batalha!");
+        else
+            Console.WriteLine($"{p2.Nome} venceu a batalha!");
+    }
+}
