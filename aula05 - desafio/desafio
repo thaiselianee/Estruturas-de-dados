@@ -1,64 +1,77 @@
-
-
-//JA FEITO ANTES
 using System;
-
-public class Node
-{
+//FAZENDO DE FORMA RECURSIVA
+public class Node {
     public int Key { get; set; }
     public Node Left { get; set; }
     public Node Right { get; set; }
 
-    public Node(int key)
-    {
-        this.Key = key;
-        Left = Right = null;
+    public Node(int key) {
+        Key = key;
     }
 }
 
+public class BST{ //DECLARA UMA class O INICIO
 
-
-public class BST
-{
-    public Node Root;
-
-    // INSERT
-    public void Insert(int value)
-    {
-        Root = InsertRec(Root, value);
-    }
-
-    private Node InsertRec(Node node, int value)
-    {
-        // Se está vazio, cria o nó
-        if (node == null)
+private Node root; //root seira tipo um no 
+public void Insert(int value){
+    root = InsertRecursive(root, value);
+}
+    private Node InsertRecursive(Node current, int value){
+        if(current == null){
             return new Node(value);
-
-        if (value < node.Key)
-            node.Left = InsertRec(node.Left, value);
-        else if (value > node.Key)
-            node.Right = InsertRec(node.Right, value);
-
-        return node;
+        }
+        if (value < current.Key){ // se o valor a inserir for menor q o no atual vai pra esquerda
+         current.Left = InsertRecursive(current.Left, value);   
+        }
+        else if(value > current.Key){
+            current.Right = InsertRecursive(current.Right, value);
+        }
+        return current;
+    }
+    
+    //metodo buscar (SEARCH)
+    public Node Buscar(int value){
+        return BuscarRecursivo(root, value);
+        
+    }
+    
+    private Node BuscarRecursivo(Node current, int value){
+        //current e o no atual "raiz e value e o valor q queremos encontrar"
+        if(current == null || current.Key == value){ 
+            //se o valor "current" = null CHEGOU NO FINAL E N ACHOU
+            //current == value ENCONTROU 
+             return current;// E O NO ENCONTRADO OU NAO ACHOU
+        }
+        
+        if(value < current.Key){
+            //nesse casso ele busca de um lado e depois do outro se n achar 
+            //EX: SE O VALOR FPOR MENOR , ENTAO ELE SO PODE ESTAR NA esquerda
+            return BuscarRecursivo(current.Left, value); 
+        }
+        else {
+            return BuscarRecursivo(current.Right, value);
+        }
+        
+        
     }
 
-    // SEARCH
-    public Node Search(int value)
-    {
-        return SearchRec(Root, value);
-    }
+    
+}
 
-    private Node SearchRec(Node node, int value)
-    {
+public class Program {
+    public static void Main() {
+        BST tree = new BST();
 
-        //busca se achou ou n
-        if (node == null || node.Key == value)
-            return node;
+        tree.Insert(10);
+        tree.Insert(5);
+        tree.Insert(20);
+        tree.Insert(7);
 
-        // Decide direção
-        if (value < node.Key)
-            return SearchRec(node.Left, value);
+        Node result = tree.Buscar(30);
+
+        if (result != null)
+            Console.WriteLine("Encontrado: " + result.Key);
         else
-            return SearchRec(node.Right, value);
+            Console.WriteLine("Não encontrado");
     }
 }
