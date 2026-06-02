@@ -1,0 +1,78 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+// 
+class Program
+{
+    static void Main()
+    {
+        Dictionary<string, int> palavras = new Dictionary<string, int>();
+
+        Console.WriteLine("dgite o texto (linha vazia para encerrar):");
+
+        string linha;
+        int totalPalavras = 0;
+
+        while (true)
+        {
+            linha = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(linha))
+                break;
+
+            linha = linha.ToLower();
+
+            char[] pontuacoes = { '.', ',', '!', '?', ';', ':', '(', ')', '"', '\'' };
+
+            foreach (char c in pontuacoes)
+            {
+                linha = linha.Replace(c.ToString(), "");
+            }
+
+            string[] palavrasTexto = linha.Split(
+                ' ',
+                StringSplitOptions.RemoveEmptyEntries
+            );
+
+            foreach (string palavra in palavrasTexto)
+            {
+                totalPalavras++;
+
+                if (palavras.ContainsKey(palavra))
+                {
+                    palavras[palavra]++;
+                }
+                else
+                {
+                    palavras.Add(palavra, 1);
+                }
+            }
+        }
+
+        Console.WriteLine("\n=== Resultado ===");
+
+        Console.WriteLine("Total de palavras: " + totalPalavras);
+
+        Console.WriteLine("Palavras distintas: " + palavras.Count);
+
+        Console.WriteLine("\nTop 10 palavras mais frequentes:");
+
+        int posicao = 1;
+
+        foreach (var item in palavras
+                 .OrderByDescending(x => x.Value)
+                 .Take(10))
+        {
+            Console.WriteLine(
+                posicao + ". \"" +
+                item.Key +
+                "\" - " +
+                item.Value +
+                " ocorrencia(s)"
+            );
+
+            posicao++;
+        }
+    }
+}
