@@ -1,0 +1,247 @@
+
+///////////////////////////////
+class Program
+{
+    static Random r = new Random();
+
+    static void Main()
+    {
+        int op = 0;
+
+        while (op != 2)
+        {
+            Console.WriteLine("EP2 - Árvores BST e AVL");
+            Console.WriteLine("--------------------------------");
+            Console.WriteLine("1) nova simulação");
+            Console.WriteLine("2) sair");
+            Console.Write("_");
+            op = int.Parse(Console.ReadLine());
+
+            if (op == 1)
+            {
+                Console.Write("Digite a quantidade de amostras: ");
+                int A = int.Parse(Console.ReadLine());
+
+                Console.Write("Digite a quantidade de elementos por árvore: ");
+                int N = int.Parse(Console.ReadLine());
+
+                double somaAlturaBST = 0;
+                double somaAlturaAVL = 0;
+
+                double somaTempoBST = 0;
+                double somaTempoAVL = 0;
+
+                double somaGeralAltura = 0;
+
+                for (int i = 0; i < A; i++)
+                {
+                    List<int> valores = gerarValores(N);
+
+                    BST bst = new BST();
+                    AVL avl = new AVL();
+
+                    Stopwatch sw = new Stopwatch();
+
+                    sw.Start();
+                    foreach (int v in valores)
+                        bst.Insert(v);
+                    sw.Stop();
+                    somaTempoBST += sw.Elapsed.TotalMilliseconds;
+
+                    sw.Reset();
+
+                    sw.Start();
+                    foreach (int v in valores)
+                        avl.Insert(v);
+                    sw.Stop();
+                    somaTempoAVL += sw.Elapsed.TotalMilliseconds;
+
+                    int hBST = bst.Height();
+                    int hAVL = avl.Height();
+
+                    somaAlturaBST += hBST;
+                    somaAlturaAVL += hAVL;
+
+                    somaGeralAltura += (hBST + hAVL) / 2.0;
+                }
+
+                Console.WriteLine("\nExperimento com A = " + A + " e N = " + N);
+                Console.WriteLine("--");
+
+                Console.WriteLine("Altura média geral: " + (somaGeralAltura / A));
+
+                Console.WriteLine("Altura média BST: " + (somaAlturaBST / A));
+                Console.WriteLine("Altura média AVL: " + (somaAlturaAVL / A));
+
+                Console.WriteLine("\nTempo médio BST (ms): " + (somaTempoBST / A));
+                Console.WriteLine("Tempo médio AVL (ms): " + (somaTempoAVL / A));
+
+            }
+        }
+
+        Console.WriteLine("Tchau!");
+    }
+
+    static List<int> gerarValores(int n)
+    {
+        HashSet<int> set = new HashSet<int>();
+
+        while (set.Count < n)
+            set.Add(r.Next(0, 10000));
+
+        return new List<int>(set);
+    }
+}
+
+   BST SIMPLES//
+class NodeBST
+{
+    public int value;
+    public NodeBST left, right;
+
+    public NodeBST(int v)
+    {
+        value = v;
+    }
+}
+
+class BST
+{
+    NodeBST root;
+
+    public void Insert(int v)
+    {
+        root = insert(root, v);
+    }
+
+    NodeBST insert(NodeBST node, int v)
+    {
+        if (node == null) return new NodeBST(v);
+
+        if (v < node.value)
+            node.left = insert(node.left, v);
+        else
+            node.right = insert(node.right, v);
+
+        return node;
+    }
+
+    public int Height()
+    {
+        return height(root);
+    }
+
+    int height(NodeBST node)
+    {
+        if (node == null) return 0;
+        return 1 + Math.Max(height(node.left), height(node.right));
+    }
+}
+
+   AVL SIMPLES
+class NodeAVL
+{
+    public int value;
+    public NodeAVL left, right;
+    public int height;
+
+    public NodeAVL(int v)
+    {
+        value = v;
+        height = 1;
+    }
+}
+
+class AVL
+{
+    NodeAVL root;
+
+    public void Insert(int v)
+    {
+        root = insert(root, v);
+    }
+
+    NodeAVL insert(NodeAVL node, int v)
+    {
+        if (node == null)
+            return new NodeAVL(v);
+
+        if (v < node.value)
+            node.left = insert(node.left, v);
+        else
+            node.right = insert(node.right, v);
+
+        node.height = 1 + Math.Max(getHeight(node.left), getHeight(node.right));
+
+        int balance = getBalance(node);
+
+        // LL
+        if (balance > 1 && v < node.left.value)
+            return rotateRight(node);
+
+        // RR
+        if (balance < -1 && v > node.right.value)
+            return rotateLeft(node);
+
+        // LR
+        if (balance > 1 && v > node.left.value)
+        {
+            node.left = rotateLeft(node.left);
+            return rotateRight(node);
+        }
+
+        // RL
+        if (balance < -1 && v < node.right.value)
+        {
+            node.right = rotateRight(node.right);
+            return rotateLeft(node);
+        }
+
+        return node;
+    }
+
+    int getHeight(NodeAVL node)
+    {
+        if (node == null) return 0;
+        return node.height;
+    }
+
+    int getBalance(NodeAVL node)
+    {
+        if (node == null) return 0;
+        return getHeight(node.left) - getHeight(node.right);
+    }
+
+    NodeAVL rotateRight(NodeAVL y)
+    {
+        NodeAVL x = y.left;
+        NodeAVL T2 = x.right;
+
+        x.right = y;
+        y.left = T2;
+
+        y.height = Math.Max(getHeight(y.left), getHeight(y.right)) + 1;
+        x.height = Math.Max(getHeight(x.left), getHeight(x.right)) + 1;
+
+        return x;
+    }
+
+    NodeAVL rotateLeft(NodeAVL x)
+    {
+        NodeAVL y = x.right;
+        NodeAVL T2 = y.left;
+
+        y.left = x;
+        x.right = T2;
+
+        x.height = Math.Max(getHeight(x.left), getHeight(x.right)) + 1;
+        y.height = Math.Max(getHeight(y.left), getHeight(y.right)) + 1;
+
+        return y;
+    }
+
+    public int Height()
+    {
+        return getHeight(root);
+    }
+}
